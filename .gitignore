@@ -1,0 +1,29 @@
+# Ambienti e dipendenze locali
+.venv/
+.venv_backup_*/
+.runtime/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# Dati personali e registri
+*_settings.json
+*_log.txt*
+install-state.json
+latest.json
+*.tmp
+backup_aggiornamenti/
+debug*/
+cattura_*.png
+screenshot*.png
+Screenshot*.png
+# Artefatti generati
+/dist/
+/build/
+*.exe
+*.zip
+*.sha256
+# Editor
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
