@@ -1,0 +1,8 @@
+INTERFACCIA - MetinHub 0.0.1
+
+Tema desktop scuro/oro condiviso, barra nativa Windows scura ove supportata,
+sidebar con riga attiva e anteprime adattive. I pannelli si dispongono in colonna
+quando manca spazio. Il banner viene ridisegnato durante il trascinamento.
+
+La correzione del conflitto con il metodo Tkinter _root e inclusa.
+La resa finale e la fluidita a DPI elevati richiedono verifica su Windows.

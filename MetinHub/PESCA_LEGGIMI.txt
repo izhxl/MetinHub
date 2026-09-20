@@ -1,0 +1,8 @@
+PESCA - MetinHub 0.0.1
+
+Scegli la finestra del gioco. Per controllare il riconoscimento usa Simula senza
+click e, se necessario, Salva immagini della prova. Avvia pesca continua usa
+la logica di riconoscimento, conferma colpi e riarmo gia presente nel prototipo.
+Lancia la canna manualmente. F8 arresta.
+
+I salvataggi di debug sono locali e non fanno parte del repository o della release.
