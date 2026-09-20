@@ -1,5 +1,0 @@
-easyocr==1.7.2
-Pillow
-mss
-pyautogui
-truststore==0.10.4
