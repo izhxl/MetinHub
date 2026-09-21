@@ -355,6 +355,8 @@ def icona_sidebar(nome,colore,size=22):
         line([(18,10),(22,6),(22,18),(18,14)])
         draw.ellipse((28,40,34,46),fill=colore)
         line([(10,6),(13,3),(15,7)])
+    elif nome=='Supporto':
+        line([(9,3),(15,3),(15,9),(21,9),(21,15),(15,15),(15,21),(9,21),(9,15),(3,15),(3,9),(9,9),(9,3)])
     elif nome=='Impostazioni':
         for y in (6,12,18):line([(3,y),(21,y)])
         for x,y in ((8,6),(16,12),(10,18)):
@@ -419,7 +421,7 @@ class Navigazione(ttk.Frame):
         # Create una volta: nessuna rasterizzazione durante il ridimensionamento.
         self.nav_icons={}
         self.button_icons={}
-        for name in ('Schegge','Pesca','Impostazioni','Installazione'):
+        for name in ('Schegge','Pesca','Supporto','Impostazioni','Installazione'):
             self.nav_icons[name]=tuple(ImageTk.PhotoImage(icona_sidebar(name,color,round(22*scale)))
                                       for color in (MUTED,GOLD))
         self.body=ttk.Frame(self,padding=(SPAZI['lg'],SPAZI['md']));self.body.pack(side='left',fill='both',expand=True)
@@ -448,11 +450,11 @@ class Navigazione(ttk.Frame):
         c=self.hero;w=max(200,c.winfo_width());h=max(112,c.winfo_height())
         title=self.buttons[self.current].cget('text').strip() if self.current else 'MetinHub'
         title=title.split('  ',1)[-1]
-        schegge=title in ('Schegge','Pesca','Impostazioni','Installazione')
+        schegge=title in ('Schegge','Pesca','Supporto','Impostazioni','Installazione')
         desired=max(120,min(160,round(self.body.winfo_height()*.19))) if schegge else max(112,min(190,round(self.body.winfo_height()*.22)))
         if schegge:
             pad=SPAZI['xl'];available=max(100,w-pad*2)
-            description={'Schegge':'Riconosci. Segui. Raccogli.','Pesca':'Segui il minigioco, controlla ogni colpo.','Impostazioni':'Tempi, prestazioni e diagnostica.','Installazione':'Componenti e aggiornamenti del programma.'}.get(title,'')
+            description={'Schegge':'Riconosci. Segui. Raccogli.','Pesca':'Segui il minigioco, controlla ogni colpo.','Supporto':'HP e abilità, prima in simulazione.','Impostazioni':'Tempi, prestazioni e diagnostica.','Installazione':'Componenti e aggiornamenti del programma.'}.get(title,'')
             title_font=FONT['page_title_compact'] if desired<150 else FONT['page_title']
             heights=[]
             # Misura il vero wrapping di Tk, incluso il DPI corrente.
@@ -486,7 +488,7 @@ class Navigazione(ttk.Frame):
         c.create_line(0,h-1,w,h-1,fill=COLORI['selected_border'])
         title=self.buttons[self.current].cget('text').strip() if self.current else 'MetinHub'
         title=title.split('  ',1)[-1]
-        descriptions={'Schegge':'Riconosci. Segui. Raccogli.', 'Pesca':'Ogni colpo conta. Il contatore conferma.',
+        descriptions={'Schegge':'Riconosci. Segui. Raccogli.', 'Pesca':'Ogni colpo conta. Il contatore conferma.','Supporto':'HP e abilità, prima in simulazione.',
                       'Impostazioni':'Il ritmo giusto per il tuo computer.', 'Installazione':'Tutto pronto, su ogni PC.'}
         c.create_text(24,round(h*.12),text='METINHUB  /  STRUMENTI',fill=MUTED,anchor='nw',font=FONT['eyebrow'])
         c.create_text(24,round(h*.34),text=title,fill=TEXT,anchor='nw',font=FONT['page_title_compact'] if h<145 else FONT['page_title'])

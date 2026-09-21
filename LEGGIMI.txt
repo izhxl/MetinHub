@@ -1,14 +1,8 @@
-MetinHub 0.0.1
-
-Estrai la cartella intera. Esegui Installa_MetinHub.bat.
-Al termine avvia MetinHub dal collegamento Desktop/Start.
-Non avviare il programma direttamente dentro lo ZIP.
-
-Per questa prima versione usa una cartella separata da MetinOCR.
-Non copiare o spostare il suo ambiente .venv.
-Il nuovo installer crea MetinHub.exe; l'EXE non e incluso gia compilato.
-
-F6: avvia/pausa Schegge. F8: arresta.
-Le impostazioni e il log sono metinhub_settings.json e metinhub_log.txt.
-
-Istruzioni complete in README.md.
+METINHUB 0.1.0
+Estrai tutta la cartella ed esegui Installa_MetinHub.bat.
+Apri MetinHub dal collegamento Desktop/Start; in alternativa Avvia_MetinHub.bat.
+Il launcher EXE viene creato dall'installer sul PC Windows.
+Non spostare la sola EXE e non copiare .venv da un altro computer.
+F8 arresta tutti i moduli. F6 controlla il modulo della pagina attiva.
+Supporto parte in modalità test; leggi SUPPORTO_LEGGIMI.txt per attivare gli input.
+Per aggiornare usa la pagina Installazione, con il canale indicato nel README.

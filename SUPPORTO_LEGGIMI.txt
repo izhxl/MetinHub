@@ -1,0 +1,36 @@
+SUPPORTO — METINHUB 0.1.0
+
+HP, mana opzionale e cinque abilità temporizzate indipendenti.
+Scegli Metin2 a ogni avvio. Calibra HP pieni senza pozione attiva selezionando
+solo il riempimento rosso. Per Auto Mana calibra separatamente la barra blu piena.
+Le ROI sono relative alla finestra e persistenti. Dopo un ridimensionamento
+ricalibra la barra interessata.
+
+La modalità test è attiva a ogni apertura dell'app. Simula tutti gli input.
+Per inviare tasti reali: Ferma, disattiva Modalità test e premi Avvia Supporto.
+Configura soglia, riarmo, cooldown, tasto e numero di usi (1–4) separatamente
+per HP e mana. Auto Mana è spento per default e non acquisisce la barra blu
+quando è disattivato. HP e abilità restano indipendenti dal mana.
+
+Puoi scrivere tasti singoli o combinazioni: ALT+1, CTRL+2, SHIFT+F1,
+CTRL+ALT+Q. F6 e F8 sono riservati. Modifiche applicate al prossimo avvio
+Supporto. Le abilità partono subito, in sequenza, poi seguono i propri timer.
+Imposta 2 secondi tra le abilità se richiesto dalle animazioni del gioco.
+Il valore già salvato viene conservato.
+
+Le barre sono stime visive su piccole ROI, senza OCR. Un filtro di tre campioni
+attenua anomalie; letture ambigue vengono escluse, non considerate 0%.
+La parte scura è stimata come recupero accodato. Se sufficiente, evita un nuovo
+burst. Riarmo solo sopra la soglia sugli HP/MP presenti e dopo il cooldown.
+Un burst completato resta BLOCKED finché si verificano le condizioni di riarmo.
+Se la cura non basta, intervieni manualmente e regola il numero di usi.
+
+Focus perso: pausa automatica, annullamento burst incompleto e rilascio tasti.
+Focus recuperato: ripresa senza raffiche per recuperare timer scaduti.
+Priorità degli input: HP, mana, abilità. F8 arresta tutti i moduli.
+F6 nella pagina Supporto avvia/ferma Supporto.
+Debug: ROI, maschera, valori grezzi/filtrati, recupero stimato e stati.
+Log solo eventi significativi. Invio accettato da Windows non certifica
+che il gioco abbia effettivamente eseguito l'abilità.
+
+Riconoscimento icone di abilità e pozioni non incluso in questa versione.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.0
+
+- Sezione Supporto con calibrazione persistente e lettura HP filtrata.
+- Auto Cura reale o simulata, burst, cooldown e soglia separata di riarmo.
+- Mana opzionale con ROI e configurazione indipendenti.
+- Stima visiva del recupero HP/MP già accodato.
+- Cinque abilità con primo utilizzo immediato, sequenza e timer indipendenti.
+- Tasti personalizzabili e combinazioni CTRL/ALT/SHIFT.
+- Pausa su perdita focus, rilascio input e arresto con F8.
+- Diagnostica e salvataggio impostazioni condivisi.
+- Canale aggiornamenti GitHub predefinito; canali personalizzati conservati.
+- Schegge, Pesca e interfaccia esistenti mantenuti.
+
 ## 0.0.1
 
 Prima base MetinHub, derivata dal prototipo MetinOCR 0.14.1 corretto.

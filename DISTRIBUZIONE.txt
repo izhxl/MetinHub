@@ -1,13 +1,8 @@
-DISTRIBUZIONE - MetinHub 0.0.1
-
-Repository: tutti i sorgenti e le risorse, esclusi i file personali.
-Release: crea lo ZIP con py tools\crea_release.py dalla cartella del repository.
-L'archivio generato contiene soltanto i file elencati in release-files.txt.
-Non usare lo ZIP automatico dei sorgenti GitHub per l'aggiornamento in-app.
-
-Per latest.json occorre l'indirizzo HTTPS reale dello ZIP pubblicato.
-Il prodotto del manifest e MetinHub, il formato e 1 e la versione e x.y.z.
-Mantieni VERSION.txt aggiornato. L'installer stampa la versione corretta nel
-launcher compilato; lo script release aggiorna anche i metadati nel pacchetto.
-
-Le istruzioni per chi sviluppa sono in docs/GITHUB.md nel repository.
+METINHUB 0.1.0 — DISTRIBUZIONE
+Repository: sorgenti, risorse, test e strumenti; nessun dato personale.
+Release: ZIP completo creato con tools/crea_release.py e release-files.txt.
+Allegare MetinHub_0.1.0.zip, latest.json e il file SHA-256 alla release v0.1.0.
+Impostare la release come Latest per il canale /releases/latest/download/latest.json.
+Non allegare lo ZIP repository al posto dello ZIP installabile.
+Per versioni future cambiare VERSION.txt e generare nuovamente ZIP e manifest
+con URL e tag della nuova release. Vedi docs/GITHUB.md.

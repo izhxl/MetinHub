@@ -9,7 +9,6 @@ __pycache__/
 *_settings.json
 *_log.txt*
 install-state.json
-latest.json
 *.tmp
 backup_aggiornamenti/
 debug*/

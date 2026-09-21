@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 [assembly: AssemblyTitle("MetinHub")]
 [assembly: AssemblyDescription("Avviatore MetinHub")]
-[assembly: AssemblyVersion("0.0.1.0")]
+[assembly: AssemblyVersion("0.1.0.0")]
 class Launcher {
     [DllImport("shell32.dll", CharSet=CharSet.Unicode)]
     static extern int SetCurrentProcessExplicitAppUserModelID(string id);

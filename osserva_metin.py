@@ -131,9 +131,8 @@ def salva_impostazioni(percorso, intervallo, motore, ritardo_rilascio=0.2, threa
     dati = dict(intervallo_scan=intervallo_valido(intervallo), motore=motore,
                 ritardo_rilascio=rilascio_valido(ritardo_rilascio), threads_cpu=threads_validi(threads_cpu),
                 url_aggiornamenti=url_aggiornamenti.strip())
-    temporaneo = percorso.with_suffix('.tmp')
-    temporaneo.write_text(json.dumps(dati, indent=2), encoding='utf-8')
-    temporaneo.replace(percorso)
+    from configurazione import aggiorna_configurazione
+    aggiorna_configurazione(percorso, dati)
 
 
 def converti_selezione(inizio, fine, originale, anteprima):
@@ -699,8 +698,11 @@ def main():
     pagina_sistema = notebook.nuova_pagina()
     pagina_pesca = notebook.nuova_pagina()
     pesca = None
+    supporto = None
+    pagina_supporto = notebook.nuova_pagina()
     notebook.add(raccolta, text='Schegge')
     notebook.add(pagina_pesca, text='Pesca')
+    notebook.add(pagina_supporto, text='Supporto')
     notebook.add(pagina_impostazioni, text='Impostazioni')
     notebook.add(pagina_sistema, text='Installazione')
     stato = tk.StringVar(value='Premi Scegli Metin2, poi passa al gioco entro 5 secondi.')
@@ -726,7 +728,7 @@ def main():
                     ultimo_errore=None, riavvio_richiesto=False)
     premuto = ctx.Value('i', 0, lock=False)
     profilo_cpu = tk.StringVar(value='Leggera - 1 thread' if config.get('threads_cpu',2)==1 else 'Normale - 2 thread')
-    url_aggiornamenti = tk.StringVar(value=config.get('url_aggiornamenti',''))
+    url_aggiornamenti = tk.StringVar(value=(config.get('url_aggiornamenti','') or 'https://github.com/izhxl/MetinHub/releases/latest/download/latest.json'))
     def numero_threads():
         return 1 if profilo_cpu.get().startswith('Leggera') else 2
     motore_scelta = tk.StringVar(value=config.get('motore', 'Auto'))
@@ -944,11 +946,14 @@ def main():
                 break
             if evento[0] == 'hotkey':
                 if evento[1] == 1:
-                    if pesca is not None and notebook.select()==str(pagina_pesca):
+                    if supporto is not None and notebook.select()==str(pagina_supporto):
+                        supporto.stop() if supporto.thread and supporto.thread.is_alive() else supporto.start()
+                    elif pesca is not None and notebook.select()==str(pagina_pesca):
                         pesca.stop() if pesca.proc else pesca.start()
                     else:
                         avvia_pausa()
                 elif evento[1] == 2:
+                    if supporto is not None: supporto.stop()
                     ferma()
             elif evento[0] == 'hotkey_ok':
                 tasti.set('F6: avvia / pausa | F8: STOP | Puoi usare i pulsanti')
@@ -1021,6 +1026,7 @@ def main():
         root.after(80, aggiorna)
 
     def chiudi():
+        if supporto is not None: supporto.close()
         chiuso.set()
         ferma()
         root.destroy()
@@ -1036,6 +1042,8 @@ def main():
         ttk.Label(pagina_sistema, text='Per la manutenzione installa tutti i file del pacchetto MetinHub.', padding=20).pack()
     from pesca_debug import SchedaPesca
     pesca = SchedaPesca(pagina_pesca, root, ferma)
+    from supporto_ui import SchedaSupporto
+    supporto = SchedaSupporto(pagina_supporto, root, percorso_config, selettore_area)
     root.protocol('WM_DELETE_WINDOW', chiudi)
     t = threading.Thread(target=hotkeys, args=(eventi, chiuso), daemon=True)
     t.start()
@@ -1043,6 +1051,7 @@ def main():
     try:
         root.mainloop()
     finally:
+        if supporto is not None: supporto.close()
         if pesca is not None:
             pesca.stop()
         chiuso.set()
