@@ -27,12 +27,17 @@ class SupportCoordinator:
     @property
     def mana_state(self):return self.mp.state if self.config['mana']['enabled'] else 'OFF'
     def suspend(self,now):
+        self.hp.pause_targets()
         return self.hp.suspend(now)+['Mana: '+x for x in self.mp.suspend(now)]
+    def cancel_target_input(self):self.hp.cancel_target_input()
+    def skill_status(self):return self.hp.skill_status()
     def countdowns(self,now):return self.hp.countdowns(now)
-    def tick(self,now,hp,predicted=None,mana=None,mana_predicted=None):
+    def tick(self,now,hp,predicted=None,mana=None,mana_predicted=None,skill_readings=None):
+        visual_events=self.hp.observe_skills(now,skill_readings or {})
         ready=now>=self.next_input
         actions,events=self.hp.tick(now,hp,predicted,allow_skills=False,allow_dispatch=ready)
         ma,me=self.mp.tick(now,mana,mana_predicted,allow_skills=False,allow_dispatch=ready and not actions)
+        events+=visual_events
         events+=['Mana: '+e.replace('Auto Cura','Auto Mana') for e in me]
         if ma:actions=[('mana',key) for _,key in ma]
         if not actions:

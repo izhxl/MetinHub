@@ -39,3 +39,4 @@ supporto_ui.py
 SUPPORTO_LEGGIMI.txt
 supporto_input.py
 supporto_mana.py
+supporto_abilita.py

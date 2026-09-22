@@ -3,6 +3,7 @@ import queue
 import time
 from supporto_core import HPFilter, analyze_hp
 from supporto_mana import SupportCoordinator, ManaMonitor
+from supporto_abilita import SkillMonitor
 
 
 def latest(channel, value):
@@ -18,6 +19,7 @@ def run_support(hwnd, config, stop, snapshots, events):
     def event(text):
         latest(events,(time.time(),text))
     engine=SupportCoordinator(config);config=engine.config
+    skill_monitor=SkillMonitor(config['skills'])
     mana_monitor=ManaMonitor(config['mana']);last_mana_error=None
     filtered=HPFilter();forecast=HPFilter()
     clock=0.;last=time.monotonic();was_active=False;last_status=None;last_error=None
@@ -35,7 +37,7 @@ def run_support(hwnd, config, stop, snapshots, events):
         with mss.mss() as capture:
             while not stop.is_set():
                 now=time.monotonic();dt=now-last;last=now
-                mana_sample={}
+                mana_sample={};skill_readings={}
                 hp=None;raw=None;confidence=0.;error='';area=None;predicted=None;predicted_raw=None;recovery=None
                 if dt>.5:
                     filtered.clear();forecast.clear();mana_monitor.clear()
@@ -78,18 +80,19 @@ def run_support(hwnd, config, stop, snapshots, events):
                                 mask=(shot.size,visual.tobytes()) if visual is not None else None
                                 image_time=now
                 elif active:
-                    filtered.clear();forecast.clear();mana_monitor.clear();error='ROI HP non calibrata; sono disponibili soltanto i timer.'
+                    filtered.clear();forecast.clear();error='ROI HP non calibrata; monitor HP non disponibile.'
                 if active:
                     try:mana_sample=mana_monitor.read(capture,area)
                     except Exception as exc:
                         mana_monitor.clear();mana_sample=dict(error=str(exc),used=None,predicted=None)
+                    skill_readings=skill_monitor.read(capture,area)
                     if stop.is_set():return
                     if u.GetForegroundWindow()!=hwnd or area_interna(u,hwnd)!=area:
                         active=False;status='PAUSA — finestra in movimento o focus cambiato'
-                        hp=None;predicted=None;mana_sample={}
+                        hp=None;predicted=None;mana_sample={};skill_readings={}
                 if active:
                     if was_active:clock+=min(dt,.25)  # no catch-up after long capture stalls
-                    actions,messages=engine.tick(clock,hp,predicted,mana_sample.get('used'),mana_sample.get('predicted'))
+                    actions,messages=engine.tick(clock,hp,predicted,mana_sample.get('used'),mana_sample.get('predicted'),skill_readings)
                     for text in messages:event(text)
                     for kind,key in actions:
                         if config['dry_run']:
@@ -97,6 +100,7 @@ def run_support(hwnd, config, stop, snapshots, events):
                         elif sender.press(key):
                             event(f'INPUT REALE: {kind} — tasto {key} inviato a Windows.')
                         else:
+                            engine.cancel_target_input()
                             event(f'Input {key} annullato: pausa, STOP o tastiera occupata.')
                             for text in engine.suspend(clock):event(text)
                 else:
@@ -115,6 +119,7 @@ def run_support(hwnd, config, stop, snapshots, events):
                     last_mana_error=mana_error
                 was_active=active
                 latest(snapshots,dict(status=status,raw=raw,filtered=hp,used=hp if active else None,
+                    skill_readings=skill_readings,skill_states=engine.skill_status(),
                     mana=mana_sample,mana_state=engine.mana_state,
                     predicted=predicted,predicted_raw=predicted_raw,recovery=recovery,
                     confidence=confidence,state=engine.state,error=error,countdowns=engine.countdowns(clock),

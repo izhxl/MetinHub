@@ -74,7 +74,8 @@ def validate(data, *, resource_only=False):
             raise ValueError(f'Abilità {i+1}: dati non validi.') from None
         if not math.isfinite(interval) or not 1 <= interval <= 86400 or not isinstance(enabled, bool):
             raise ValueError(f'Abilità {i+1}: tasto non valido o intervallo fuori da 1–86400 s.')
-        skills.append(dict(name=name, key=key, interval=interval, enabled=enabled))
+        from supporto_abilita import validate_skill_visual
+        skills.append(dict(name=name, key=key, interval=interval, enabled=enabled, **validate_skill_visual(skill)))
     c['skills'] = skills
     for key, length in (('roi', 4), ('window_size', 2)):
         v = c[key]
@@ -263,6 +264,9 @@ class SupportEngine:
         # Enabled slots are due on the first foreground tick of a new session.
         # Each subsequent deadline is set independently after its first dispatch.
         self.next_skill=[0.0 for s in self.config['skills']]
+        from supporto_abilita import TargetState
+        self.targets=[TargetState() for _ in self.config['skills']]
+        self.visual_events=[];self.last_target=None
         self.next_dispatch=0;self.next_skill_dispatch=0;self.waiting_recovery=False
     def suspend(self, now):
         if self.state=='HEALING':
@@ -296,15 +300,35 @@ class SupportEngine:
                 # Oldest due slot first prevents short timers starving other skills.
                 for i in sorted(range(len(c['skills'])),key=lambda i:(self.next_skill[i],i)):
                     s=c['skills'][i]
-                    if s['enabled'] and now>=max(self.next_skill[i],self.next_skill_dispatch):
+                    eligible=(self.targets[i].due(now,s['retry']) if s['mode']=='target' else now>=self.next_skill[i])
+                    if s['enabled'] and eligible and now>=self.next_skill_dispatch:
                         actions.append((s['name'] or f'Abilità {i+1}',s['key']))
-                        self.next_skill[i]=now+s['interval']
+                        if s['mode']=='target':
+                            self.targets[i].attempt(now);self.last_target=i
+                            self.next_skill[i]=now+s['retry']
+                        else:self.next_skill[i]=now+s['interval']
                         self.next_skill_dispatch=now+c['skill_gap']
                         break
             if actions:self.next_dispatch=now+.08
         return actions,events
+    def observe_skills(self,now,readings):
+        self.last_target=None
+        messages=[]
+        for i,s in enumerate(self.config['skills']):
+            if s['enabled'] and s['mode']=='target':
+                if self.targets[i].observe(now,readings.get(i,{}),s['interval']):
+                    self.next_skill[i]=self.targets[i].deadline
+                    messages.append(f"{s['name'] or 'Abilità '+str(i+1)}: attivazione confermata visivamente; timer {s['interval']:g} s avviato.")
+        return messages
+    def pause_targets(self):
+        for t in self.targets:t.pause()
+    def cancel_target_input(self):
+        if self.last_target is not None:self.targets[self.last_target].pause()
+        self.last_target=None
+    def skill_status(self):
+        return [t.label if s['mode']=='target' and s['enabled'] else '' for t,s in zip(self.targets,self.config['skills'])]
     def countdowns(self, now):
-        return [max(0,max(d,self.next_skill_dispatch)-now) if s['enabled'] else None for d,s in zip(self.next_skill,self.config['skills'])]
+        return [max(0,(self.targets[i].deadline if s['mode']=='target' else max(d,self.next_skill_dispatch))-now) if s['enabled'] else None for i,(d,s) in enumerate(zip(self.next_skill,self.config['skills']))]
 
 
 def detect_potion_icon(*_):

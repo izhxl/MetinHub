@@ -1,4 +1,4 @@
-SUPPORTO — METINHUB 0.1.0
+SUPPORTO — METINHUB 0.1.1
 
 HP, mana opzionale e cinque abilità temporizzate indipendenti.
 Scegli Metin2 a ogni avvio. Calibra HP pieni senza pozione attiva selezionando
@@ -34,3 +34,26 @@ Log solo eventi significativi. Invio accettato da Windows non certifica
 che il gioco abbia effettivamente eseguito l'abilità.
 
 Riconoscimento icone di abilità e pozioni non incluso in questa versione.
+
+ABILITA A BERSAGLIO — 0.1.1
+Scegli A bersaglio nello slot. Configura tasto, intervallo e pausa tentativi.
+Calibra slot (5 s): seleziona l'interno dell'icona pronta, senza numero tasto,
+numero livello o cornice, con il cursore lontano. Salva e avvia.
+A tempo non richiede calibrazione né acquisizione dell'icona.
+
+Il sistema riprova se l'icona resta pronta e l'attivazione non è confermata.
+Un oscuramento persistente dopo il tentativo conferma l'attivazione e fa partire
+l'intero intervallo. Il lampo bianco da solo non è sufficiente.
+Esempio: conferma a 8 s, intervallo 30 s: prossima richiesta a 38 s.
+Alla scadenza si attende comunque che l'icona torni pronta.
+La pausa fra tentativi rispetta anche la pausa globale tra abilità.
+Le conferme pendenti vengono scartate se il gioco perde il primo piano.
+La modalità test osserva anche un'attivazione manuale avvenuta entro 2 secondi
+dal tentativo simulato. Usa questo metodo per verificare una nuova icona.
+
+READY: simile all'icona calibrata. COOLDOWN: oscuramento compatibile con ricarica.
+UNKNOWN: lampo, icona diversa o lettura incerta; nessuna attivazione confermata.
+La confidenza non è una probabilità di successo dell'abilità.
+Al cambio livello/aspetto, slot o dimensioni della finestra ricalibra.
+La stessa pagina della barra deve restare visibile: le combinazioni di tasti
+non cambiano automaticamente la ROI da leggere.

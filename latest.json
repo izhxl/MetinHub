@@ -1,8 +1,8 @@
 {
   "product": "MetinHub",
   "format": 1,
-  "version": "0.1.0",
-  "url": "https://github.com/izhxl/MetinHub/releases/download/v0.1.0/MetinHub_0.1.0.zip",
-  "sha256": "859dc28145b15f41841c8792af47454cec8b2b336386d57bda6e2d74a753c90c",
-  "notes": "MetinHub 0.1.0"
+  "version": "0.1.1",
+  "url": "https://github.com/izhxl/MetinHub/releases/download/V0.1.1/MetinHub_0.1.1.zip",
+  "sha256": "b4b60da7bb303538423176fd02e0a9f5665dc4099ac933945350b6346bae6b97",
+  "notes": "MetinHub 0.1.1"
 }

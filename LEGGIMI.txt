@@ -1,4 +1,4 @@
-METINHUB 0.1.0
+METINHUB 0.1.1
 Estrai tutta la cartella ed esegui Installa_MetinHub.bat.
 Apri MetinHub dal collegamento Desktop/Start; in alternativa Avvia_MetinHub.bat.
 Il launcher EXE viene creato dall'installer sul PC Windows.

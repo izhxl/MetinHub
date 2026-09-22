@@ -26,7 +26,7 @@ class SchedaSupporto:
             self.saved=validate({});load_error='Impostazioni Supporto non caricate: '+str(e)
         self.status=tk.StringVar(value=load_error or 'FERMO — Modalità test attiva')
         self.values={}
-        self.skills=[]
+        self.skills=[];self.skill_options=[]
         self.debug=tk.BooleanVar(value=True);self.dry=tk.BooleanVar(value=True)
         self.snapshots=queue.Queue(maxsize=1);self.events=queue.Queue(maxsize=200)
         panel=pannello(parent,'Sessione Supporto','Monitor HP e timer indipendenti. F8 arresta tutti i moduli.')
@@ -97,7 +97,7 @@ class SchedaSupporto:
         self.mana_mask=ttk.Label(mana,text='Bianco = mana presente · Grigio = recupero stimato',anchor='w')
         self.mana_mask.pack(fill='x')
         self.mana_image_stamp=0
-        abilities=pannello(parent,'Abilità temporizzate','Primo utilizzo immediato all’avvio, una abilità alla volta, con Metin2 in primo piano. Poi ogni timer segue il proprio intervallo; perde il focus, va in pausa.')
+        abilities=pannello(parent,'Abilità: a tempo o a bersaglio','Primo utilizzo immediato all’avvio, una abilità alla volta, con Metin2 in primo piano. Poi ogni timer segue il proprio intervallo; perde il focus, va in pausa.')
         testo(abilities,'Tasti personalizzati: scrivi anche ALT+1, CTRL+2 o SHIFT+F1. F6/F8 riservati.',role='technical')
         self.field(abilities,'Pausa tra abilità (s)','skill_gap',.1,10,.1)
         for i,skill in enumerate(self.saved['skills']):
@@ -114,6 +114,16 @@ class SchedaSupporto:
             ttk.Label(box,text='Intervallo (s)').grid(row=2,column=0,sticky='w')
             ttk.Spinbox(box,textvariable=interval,from_=1,to=86400,increment=1,width=10).grid(row=2,column=1,sticky='w',padx=8)
             box.columnconfigure(1,weight=1)
+            mode=tk.StringVar(value='A bersaglio' if skill.get('mode')=='target' else 'A tempo')
+            retry=tk.StringVar(value=str(skill.get('retry',.5)))
+            detail=tk.StringVar(value='Slot calibrato' if skill.get('calibration') else 'A tempo: nessuna calibrazione necessaria.')
+            ttk.Label(box,text='Modalità').grid(row=3,column=0,sticky='w')
+            ttk.Combobox(box,textvariable=mode,values=('A tempo','A bersaglio'),state='readonly',width=14).grid(row=3,column=1,sticky='w',padx=8,pady=3)
+            ttk.Button(box,text='Calibra slot (5 s)',style='Secondary.TButton',command=lambda index=i:self.choose(True,'skill',index)).grid(row=3,column=2,sticky='w')
+            ttk.Label(box,text='Pausa tentativi (s)').grid(row=4,column=0,sticky='w')
+            ttk.Spinbox(box,textvariable=retry,from_=.2,to=10,increment=.1,width=10).grid(row=4,column=1,sticky='w',padx=8)
+            ttk.Label(box,textvariable=detail,foreground=COLORI['muted'],wraplength=500).grid(row=5,column=0,columnspan=3,sticky='w',pady=3)
+            self.skill_options.append((mode,retry,detail))
             self.skills.append((name,key,interval,enabled,countdown))
         save=pannello(parent,'Configurazione Supporto')
         ttk.Button(save,text='Salva Supporto',style='Primary.TButton',command=self.save).pack(anchor='w')
@@ -147,6 +157,9 @@ class SchedaSupporto:
         data['dry_run']=self.dry.get()
         data['skills']=[dict(name=n.get(),key=k.get(),interval=i.get(),enabled=e.get())
                         for n,k,i,e,_ in self.skills]
+        for idx,skill in enumerate(data['skills']):
+            mode,retry,_=self.skill_options[idx]
+            skill.update(mode='target' if mode.get()=='A bersaglio' else 'timer',retry=retry.get(),calibration=self.saved['skills'][idx].get('calibration'))
         return validate(data)
 
     def save(self):
@@ -170,11 +183,16 @@ class SchedaSupporto:
         if self.debug.get():self.debug_frame.pack(fill='x');self.image_stamp=None
         else:self.debug_frame.pack_forget()
 
-    def choose(self, calibration=False, resource="hp"):
-        self.stop();code=self.selection
+    def choose(self, calibration=False, resource="hp", skill_index=None):
+        self.stop()
+        if resource=="skill" and self.save() is None:return
+        code=self.selection
         def countdown(n):
             if self.closed or code!=self.selection:return
             if n:
+                if resource=='skill':
+                    self.status.set(f'Porta Metin2 in primo piano entro {n} s — abilità pronta, cursore lontano dallo slot.')
+                    self.root.after(1000,lambda:countdown(n-1));return
                 self.status.set(f'Porta Metin2 in primo piano entro {n} s'+(f' — {"Mana pieno" if resource=="mp" else "HP pieni"}, nessuna pozione attiva.' if calibration else '.'))
                 self.root.after(1000,lambda:countdown(n-1));return
             try:
@@ -200,6 +218,15 @@ class SchedaSupporto:
                     if roi is None:self.status.set('Calibrazione annullata.');return
                     try:
                         x,y,w,h=roi
+                        if resource=='skill':
+                            from supporto_abilita import calibrate_slot
+                            profile=calibrate_slot(image.crop((x,y,x+w,y+h)),roi,image.size)
+                            data=self.collect();data['skills'][skill_index]['calibration']=profile
+                            data=validate(data);aggiorna_configurazione(self.path,{'supporto':data})
+                            self.saved=data
+                            self.skill_options[skill_index][2].set('Slot calibrato: '+str(list(roi)))
+                            self.status.set('Icona pronta salvata. Avvia in Modalità test per verificare la lettura.')
+                            return
                         profile=calibrate(image.crop((x,y,x+w,y+h)),kind=resource)
                         data=dict(self.saved)
                         calibration_data=dict(roi=list(roi),window_size=list(image.size),color=profile)
@@ -217,6 +244,7 @@ class SchedaSupporto:
                         self.status.set('Calibrazione non salvata: '+message)
                         (self.mana_detail if resource=='mp' else self.error).set('Calibrazione non salvata: '+message)
                 self.status.set('Seleziona SOLO l’interno '+('blu della barra mana piena' if resource=='mp' else 'rosso della barra HP piena')+', senza bordi, testo o icone.')
+                if resource=='skill':self.status.set('Seleziona l’interno di UNA icona pronta, senza numero tasto, livello o cornice. Non attivarla durante la calibrazione.')
                 self.dialog=self.select_area(self.root,image,selected)
             except Exception as e:
                 self.status.set('Selezione non riuscita: '+str(e))
@@ -236,6 +264,9 @@ class SchedaSupporto:
             self.status.set('Calibra la barra HP prima di simulare Auto Cura.');return
         if config['mana']['enabled'] and (not config['mana']['roi'] or not config['mana']['color'] or 'bright_rows' not in config['mana']['color']):
             self.status.set('Calibra la barra mana piena prima di attivare Auto Mana.');return
+        for i,skill in enumerate(config['skills']):
+            if skill['enabled'] and skill['mode']=='target' and not skill['calibration']:
+                self.status.set(f'Calibra lo slot dell’abilità {i+1} prima di avviare A bersaglio.');return
         self.selection+=1
         self.snapshots=queue.Queue(maxsize=1);self.events=queue.Queue(maxsize=200)
         self.stop_event=threading.Event();self.image_stamp=None
@@ -292,8 +323,11 @@ class SchedaSupporto:
             self.hp_detail.set(f"Grezzi: {percent(sample.get('raw'))} · Filtrati: {percent(sample.get('filtered'))} · Confidence: {sample.get('confidence',0):.2f} · {sample.get('fps',0):.1f} letture/s")
             self.recovery_text.set(f"In recupero: {percent(sample.get('recovery'))} · HP previsti: {percent(sample.get('predicted'))}")
             self.error.set(sample.get('error') or 'Stime sperimentali · riarmo sugli HP presenti filtrati.')
-            for values,remaining in zip(self.skills,sample.get('countdowns',[])):
-                values[-1].set('OFF' if remaining is None else f'Prossimo: {remaining:.1f} s')
+            for idx,(values,remaining) in enumerate(zip(self.skills,sample.get('countdowns',[]))):
+                states=sample.get('skill_states',[]);state=states[idx] if idx<len(states) else ''
+                values[-1].set('OFF' if remaining is None else (f'{state} · {remaining:.1f} s' if state else f'Prossimo: {remaining:.1f} s'))
+                reading=sample.get('skill_readings',{}).get(idx)
+                if reading:self.skill_options[idx][2].set(f"{reading['state']} · conf. {reading['confidence']:.2f} · {reading['reason']}")
             if self.debug.get() and sample.get('image') and sample.get('image_time')!=self.image_stamp:
                 from PIL import Image,ImageTk
                 size,data=sample['image'];image=Image.frombytes('RGB',size,data)

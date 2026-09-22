@@ -1,12 +1,12 @@
 # MetinHub
 
-**Versione 0.1.0 — Windows 10/11 x64.**
+**Versione 0.1.1 — Windows 10/11 x64.**
 
 App desktop con Schegge, Pesca, Supporto, Impostazioni e Installazione.
 
 ## Installazione
 
-Scarica `MetinHub_0.1.0.zip` dagli allegati della release, estrai tutta la
+Scarica `MetinHub_0.1.1.zip` dagli allegati della release, estrai tutta la
 cartella ed esegui `Installa_MetinHub.bat`. Avvia poi dal collegamento creato.
 L'installer prepara Python, dipendenze e l'avviatore con icona `MetinHub.exe`.
 Il launcher viene compilato sul PC Windows: non è un EXE autonomo e richiede
@@ -26,6 +26,16 @@ esplicitamente; vengono sospesi quando Metin2 perde il focus. F8 ferma tutti
 i moduli. F6 controlla il modulo previsto dalla pagina attiva.
 Le letture HP/MP e del recupero sono stime visive. Vedi `SUPPORTO_LEGGIMI.txt`.
 
+## Abilità: modalità distinte
+
+- **A tempo:** tasto e intervallo, senza calibrazione o acquisizione dell'icona.
+- **A bersaglio:** calibrazione dello slot pronto, tentativi ripetuti e conferma
+  visiva dell'oscuramento; il timer parte dalla conferma, non dalla pressione.
+
+Resta necessario ricalibrare dopo cambiamenti allo slot, all'icona o alle dimensioni
+della finestra. Non è ancora presente un catalogo per selezionare l'abilità per nome.
+La classificazione osserva l'aspetto dello slot, non lo stato interno del gioco.
+
 ## Aggiornamenti
 
 Canale stabile predefinito:
@@ -36,7 +46,7 @@ ufficiale, inserisci l'indirizzo sopra nella pagina Installazione e salvalo.
 Il controllo/scaricamento segue il flusso esistente della pagina Installazione;
 non è stata introdotta un'installazione silenziosa automatica.
 Lo ZIP viene verificato tramite SHA-256. Versioni uguali non sono proposte
-come aggiornamenti: le prove della 0.1.0 si applicano localmente.
+come aggiornamenti: le prove della 0.1.1 si applicano localmente.
 
 ## Repository e build
 
@@ -46,7 +56,7 @@ Le risorse `pesca_contatore.json` e `pesca_riferimento.png` sono necessarie.
 
 ```bat
 py -m unittest discover -s tests -v
-py tools\crea_release.py --url https://github.com/izhxl/MetinHub/releases/download/v0.1.0/MetinHub_0.1.0.zip
+py tools\crea_release.py --url https://github.com/izhxl/MetinHub/releases/download/V0.1.1/MetinHub_0.1.1.zip
 ```
 
 Il secondo comando produce ZIP, SHA-256 e manifest in `dist`.
